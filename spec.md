@@ -136,7 +136,7 @@ No web claim flow or browser mining. Serve the page and API at the agreed domain
 
 ### Client builds and distribution
 
-[EQTY Story #22](http://localhost:3456/tasks/107) owns client distribution, separate from CLI behavior and public service deployment. Keep the service, client, native PoW integration, release workflows, Homebrew formulae and Scoop manifests in this monorepo.
+[EQFAUCET-7](http://localhost:3456/tasks/107) owns client distribution, separate from CLI behavior and public service deployment. Keep the service, client, native PoW integration, release workflows, Homebrew formulae and Scoop manifests in this monorepo.
 
 - Build and test the client on native Linux, macOS and Windows GitHub Actions runners. Windows starts with `x86_64-pc-windows-msvc`, using a Windows runner such as `windows-2025`, including the native PoW build, solver/verifier compatibility tests and CLI tests. Windows ARM64 is deferred.
 - Publish versioned client archives, checksums, required license files and build provenance through GitHub Releases. Verify the packaged artifacts and tie each channel to the same tested source revision.
@@ -164,7 +164,7 @@ Security-sensitive tests must exercise concurrency and uncertain outcomes, not o
 
 ## 10. Delivery breakdown
 
-Use six substantial implementation tickets plus one client distribution Story on the EQTY board. Each implementation ticket includes relevant tests and documentation; do not split every endpoint into its own ticket.
+Use seven substantial tickets on the EQTY Faucet board, including a separate client distribution story. Each implementation ticket includes relevant tests and documentation; do not split every endpoint into its own ticket.
 
 | Key | Ticket | Dependencies |
 | --- | --- | --- |
@@ -172,7 +172,7 @@ Use six substantial implementation tickets plus one client distribution Story on
 | F2 | Build the persistent faucet API, credit ledger and abuse controls | F1 |
 | F3 | Implement funded test-EQTY ERC-20 payouts and recovery | F2 |
 | F4 | Deliver the Rust client library and headless CLI | F1; final integration with F2/F3 in F6 |
-| D1 | EQTY Story #22: install the client through native package managers | F4 |
+| D1 | EQFAUCET-7: install the client through native package managers | F4 |
 | F5 | Publish the agent skill and EQTY explanation page | F4, D1 |
 | F6 | Deploy, release and verify the complete test-EQTY faucet | F3, F4, F5, D1 |
 
