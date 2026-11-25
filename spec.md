@@ -80,7 +80,7 @@ Use PostgreSQL for persistent sessions, policy/challenge versions, proof accepta
 
 ## 5. Proof-of-work and abuse resistance
 
-HashWX is the preferred candidate because the desired workload favors general-purpose CPUs and requires cheap server verification. This is a **candidate to validate**, not a verified deployment choice. Before freezing protocol v1, benchmark maintained x86-64 Linux and ARM64 macOS builds, CPU/GPU advantage using available evidence, verification throughput, memory, native dependency packaging, and license compatibility. Record the decision and reproducible vectors. If unsuitable, record a replacement decision before implementation proceeds; never roll a custom cryptographic primitive.
+HashWX is the preferred candidate because the desired workload favors general-purpose CPUs and requires cheap server verification. This is a **candidate to validate**, not a verified deployment choice. Before freezing protocol v1, benchmark maintained x86-64 Linux, ARM64 macOS and x86-64 Windows MSVC builds, CPU/GPU advantage using available evidence, verification throughput, memory, native dependency integration, and license compatibility. Record the decision and reproducible vectors. If unsuitable, record a replacement decision before implementation proceeds; never roll a custom cryptographic primitive.
 
 Do not use reported client speed to lower difficulty. Clients may parallelize, but faster hardware must perform the same required work per credit. CPU-centric does not mean equal performance per machine. Do not reuse RandomX/Monero jobs or replace the algorithm with a GPU-friendly static hash without an explicit protocol decision.
 
@@ -126,13 +126,26 @@ The page includes:
 
 - EQTY branding, project purpose and links to EQTY and the source repository.
 - Exact current asset/network/contract, work/reward policy and payout minimum.
-- Copyable installation and mining examples for Linux x86-64/ARM64 and macOS ARM64/x86-64, with the verified supported matrix stated explicitly.
+- Copyable installation and mining examples for Linux x86-64/ARM64, macOS ARM64/x86-64 and Windows x86-64, with the verified supported matrix stated explicitly.
 - Library entry point, CLI help, agent skill and machine-readable API links.
 - Current operational status and clear maintenance/treasury pause messages.
 - A plain explanation of CPU use, saved credit, recipient privacy and retained service data.
 - A clear test-token label and a statement that recipient transactions still need native gas.
 
 No web claim flow or browser mining. Serve the page and API at the agreed domain with TLS; site content can be static. Do not force a particular hosting vendor or introduce Vercel dependencies. Configure DNS and production secrets during the deployment ticket, not while writing this spec.
+
+### Client builds and distribution
+
+[EQTY Story #22](http://localhost:3456/tasks/107) owns client distribution, separate from CLI behavior and public service deployment. Keep the service, client, native PoW integration, release workflows, Homebrew formulae and Scoop manifests in this monorepo.
+
+- Build and test the client on native Linux, macOS and Windows GitHub Actions runners. Windows starts with `x86_64-pc-windows-msvc`, using a Windows runner such as `windows-2025`, including the native PoW build, solver/verifier compatibility tests and CLI tests. Windows ARM64 is deferred.
+- Publish versioned client archives, checksums, required license files and build provenance through GitHub Releases. Verify the packaged artifacts and tie each channel to the same tested source revision.
+- Use an EQTY Homebrew tap for macOS, a Launchpad PPA for Ubuntu, and an EQTY Scoop bucket for Windows. Keep formulae/manifests in the monorepo and update artifact URLs/checksums from the release. Launchpad builds Ubuntu binary packages from signed source uploads.
+- Publish the reusable Rust client library and required public dependency crates on crates.io. Document source-build prerequisites for Cargo users.
+- The site and skill teach package-manager installation and upgrades. Do not distribute or recommend a downloaded shell installation script or curl-to-shell. WinGet and Chocolatey are not the selected Windows channels.
+- Only the service needs a Linux deployment build. Public homebrew/core or Ubuntu Universe inclusion is a later option, not a launch requirement.
+
+Launchpad ownership, signing credentials, Ubuntu series, package/crate name availability, release-channel authentication and any manual publication steps remain to be resolved in the distribution story. No release, PPA, tap, bucket or crate is claimed to exist yet.
 
 ## 9. Verification and release gates
 
@@ -144,14 +157,14 @@ The implementation must demonstrate:
 4. Exactly-once payout intent/reservation under concurrent requests, restart recovery after signing/broadcast, nonce uniqueness, RPC timeouts, failed receipts, and reorg reconciliation.
 5. Real test-EQTY transfer to an authorized test recipient on Base Sepolia, with receipt, Transfer log and balance delta. No native token distribution is included.
 6. End-to-end CLI and library flow, bounded CPU/time, interruption/resume, target semantics, JSON/exit codes, overload backoff and truthful pending status.
-7. Published binaries, checksums, container/deployment artifact, database migration/backup/restore procedures, and green CI for the exact released revision.
+7. Published client artifacts and package metadata from the distribution story, verified Homebrew/PPA/Scoop installation, checksums, a Linux service container/deployment artifact, database migration/backup/restore procedures, and green CI for the exact released revision.
 8. TLS page/API at `faucet.eqty.me`, readable skill/API docs, working links, and site/CLI values matching the deployed asset policy.
 
 Security-sensitive tests must exercise concurrency and uncertain outcomes, not only mocked happy paths. Use local EVM fixtures for repeatability and one recorded live acceptance run for actual network behavior. No mainnet test transactions or unrelated wallet funds.
 
 ## 10. Delivery breakdown
 
-Use six substantial tickets. Each includes implementation, relevant tests and documentation; do not split every endpoint into its own ticket.
+Use six substantial implementation tickets plus one client distribution Story on the EQTY board. Each implementation ticket includes relevant tests and documentation; do not split every endpoint into its own ticket.
 
 | Key | Ticket | Dependencies |
 | --- | --- | --- |
@@ -159,10 +172,11 @@ Use six substantial tickets. Each includes implementation, relevant tests and do
 | F2 | Build the persistent faucet API, credit ledger and abuse controls | F1 |
 | F3 | Implement funded test-EQTY ERC-20 payouts and recovery | F2 |
 | F4 | Deliver the Rust client library and headless CLI | F1; final integration with F2/F3 in F6 |
-| F5 | Publish the agent skill and EQTY explanation page | F4 |
-| F6 | Deploy, release and verify the complete test-EQTY faucet | F3, F4, F5 |
+| D1 | EQTY Story #22: install the client through native package managers | F4 |
+| F5 | Publish the agent skill and EQTY explanation page | F4, D1 |
+| F6 | Deploy, release and verify the complete test-EQTY faucet | F3, F4, F5, D1 |
 
-F1 records exact reward/work parameters or a measured calibration policy before public launch. F3 verifies deployment identity and treasury/gas funding. F6 selects the hosting target and applies DNS/secrets. These are explicit delivery gates, not assertions that resources are already provisioned.
+F1 records exact reward/work parameters or a measured calibration policy before public launch. F3 verifies deployment identity and treasury/gas funding. F4 owns cross-platform library/CLI behavior; D1 owns client release packaging and publication. F5 documents those installation routes. F6 selects the hosting target, applies DNS/secrets and verifies installation and end-to-end operation. These are explicit delivery gates, not assertions that resources are already provisioned.
 
 ## 11. Later extension
 
